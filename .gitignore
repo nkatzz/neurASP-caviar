@@ -1,0 +1,13 @@
+env_neurAsp/
+__pycache__/
+data/*.pkl
+asp_on_ws/*.lp
+setup1/*.pkl
+setup1/__pycache__/
+setup1/neural_models/*.pt
+setup2/*.pkl
+setup2/__pycache__/
+setup2/neural_models/*.pt
+setup3/*.pkl
+setup3/__pycache__/
+setup3/neural_models/*.pt
