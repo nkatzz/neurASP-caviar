@@ -45,7 +45,7 @@ folds={
 stats={}
 
 batchSize=4
-epochs=1000
+epochs=10
 lr=0.0000015
 models_paths=[]
 
@@ -98,7 +98,6 @@ for f in folds:
 		setup1_utils.train(
 			model,
 			trainData,
-			# testData,
 			optimizer,
 			criterion,
 			batchSize
@@ -128,30 +127,6 @@ for f in folds:
 		print("Current Best f1: {} at epoch {}".format(stats[f]["best_f1"],stats[f]["best_epoch"]))
 
 
-
-
-		# print("Complex Events: Train Acc = {} Train Loss = {} | Val Acc = {} Val Loss = {}".format(
-		# 	training_acc,
-		# 	training_loss,
-		# 	validation_acc,
-		# 	validation_loss
-		# 	)
-		# )
-
-		# stats[f]["acc_stats"]["train"].append(training_acc)
-		# stats[f]["acc_stats"]["test"].append(validation_acc)
-
-
-		# stats[f]["loss_stats"]["train"].append(training_loss)
-		# stats[f]["loss_stats"]["test"].append(validation_loss)
-
-
-
-		# if(stats[f]["Best_val_acc"] < validation_acc):
-		# 	stats[f]["Best_val_acc"] = validation_acc
-		# 	torch.save(model,model_file_name)
-
-
 	fold_time=int((time.time() - startTime)/60)
 
 
@@ -160,32 +135,6 @@ for f in folds:
 
 	stats[f]["total_time"]=fold_time
 	stats[f]["infer_time"]=total_infer_time
-
-
-
-	# print("Fold {} total time from beginning: {} minutes".format(f, epoch_time))
-	# print("--------------------------------------------------------------------------")
-
-
-	# train_val_acc_df_complex = pd.DataFrame.from_dict(stats[f]["acc_stats"]).reset_index().melt(id_vars=['index']).rename(columns={"index":"epochs"})
-	# train_val_loss_df_complex = pd.DataFrame.from_dict(stats[f]["loss_stats"]).reset_index().melt(id_vars=['index']).rename(columns={"index":"epochs"})# Plot the dataframes
-
-	# train_val_acc_df_complex.to_csv(acc_stats_file_complex)
-	# train_val_loss_df_complex.to_csv(loss_stats_file_complex)
-	# stats[f]["total_time"]=epoch_time
-
-
-
-
-# for m in models_paths:
-# 	f=m.split("-")[1].replace(".pt","")
-# 	print("{} total time {}".format(f,stats[f]["total_time"]))
-# 	loaded_model = torch.load(model_file_name)
-# 	[all_preds,all_targets]=setup1_utils.infer(loaded_model,folds[f]["test"])
-# 	idx2class = {complex_label_encoder[k]:k for k in complex_label_encoder.keys()}
-# 	confusion_matrix_df = pd.DataFrame(confusion_matrix(all_targets, all_preds)).rename(columns=idx2class, index=idx2class)
-# 	print(classification_report(all_targets, all_preds,zero_division=0))
-# 	print(confusion_matrix_df) 
 
 
 

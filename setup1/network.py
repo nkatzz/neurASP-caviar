@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 class Lstm(nn.Module):
 
-    def __init__(self,n_features=13,n_classes=3,n_hidden=256,n_layers=2,dropout=0.3):
+    def __init__(self,n_features=11,n_classes=3,n_hidden=256,n_layers=2,dropout=0.3):
         super().__init__()
         self.n_hidden=n_hidden
         self.n_layers=n_layers
