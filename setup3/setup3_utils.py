@@ -14,12 +14,21 @@ import re
 import torch
 from torchmetrics import F1
 
-
+'''
+Use gpu if present
+'''
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
+'''
+The number of simple event classes is 4 [activew,inactive,walking,running]
+'''
 NUM_OF_CLASSES=4
 
+'''
+This asp code has all the definitions needed. For each sample
+that needs to infered the outputs of the lstm on simple events
+will be appended to the end alognside the aux atoms.
 
+'''
 
 def get_asp():
 
@@ -88,13 +97,18 @@ terminatedAt(meeting(X0,X1),X2) :- happensAt(walking(X1),X2),far(X0,X1,25,X2).
 
 	return asp_program
 
+'''
+This method is actually the ASP-logic layer. Basically it calls clingo internally as NeurAsp.
 
-
-
+'''
 def infer_on_complex(model,data_to_infer,complex_label_encoder):
 
 
 	domain=["active", "inactive", "running", "walking"]
+	'''
+	Get a copy of the asp code that contains all the definitions in order to append
+	the classification outputs on simple events
+	'''
 	asp_program = get_asp()
 
 
@@ -103,25 +117,39 @@ def infer_on_complex(model,data_to_infer,complex_label_encoder):
 	all_targets=[]
 
 
-
+	'''
+	Pytorch needs this in order to evaluate the model
+	'''
 	with torch.no_grad():
 		model.eval()
 
+	'''
+	For each testing sample get the tensors , the aux atoms and the complex event labels
 
+	'''
 	for d in data_to_infer:
 
-		t1=d["tensors"]["p1_tensor"]
-		t2=d["tensors"]["p2_tensor"]
-		atoms=d["atoms"]
-		labels=d["labels"]
+		t1=d["tensors"]["p1_tensor"] # person1 tensor
+		t2=d["tensors"]["p2_tensor"] # person2 tensor
+		atoms=d["atoms"] # aux atoms for both persons extracted from the xml files
+		labels=d["labels"] # complex event labels
 
-		p1_out,(_,_)=model(t1)
-		p2_out,(_,_)=model(t2)
-		p1_out=F.softmax(p1_out.view(-1,NUM_OF_CLASSES), dim=1)
+		p1_out,(_,_)=model(t1) # results on simple events regarding person1
+		p2_out,(_,_)=model(t2) # results on simple events regarding person2
+
+		''''
+		Softmax the output of the Lstm to get probabilities
+		'''
+
+		p1_out=F.softmax(p1_out.view(-1,NUM_OF_CLASSES), dim=1) 
 		p2_out=F.softmax(p2_out.view(-1,NUM_OF_CLASSES), dim=1)
 
 		inference_filter=""
 		results=""
+
+		'''
+		Get the classification on every timestep with the greater probability
+		'''
 
 		_, p1_out = torch.max(p1_out, dim = 1)
 		p1_out = p1_out.tolist()
@@ -130,9 +158,16 @@ def infer_on_complex(model,data_to_infer,complex_label_encoder):
 		_, p2_out = torch.max(p2_out, dim = 1)
 		p2_out = p2_out.tolist()
 
-
+		'''
+		Creation of asp atoms from the lstm outputs for both involved persons
+		for each time-step
+		'''
 		for tp in range(0,len(labels)):
-
+			'''
+			This is needed in order to define the no interaction complex event.
+			It is a simple rule that says if the complex event meeting or moving does not hold at that time point then
+			there is no interaction between those persons. 
+			'''
 			inference_filter+="complexEvent(no_interaction,{}) :- not holdsAt(meeting(_,_),{}) , not holdsAt(moving(_,_),{}).\n".format(tp,tp,tp)
 
 
@@ -142,13 +177,24 @@ def infer_on_complex(model,data_to_infer,complex_label_encoder):
 			results+=happens_atom_p1+" "+happens_atom_p2+"\n"
 
 		inference_filter+="complexEvent(meeting,T) :- holdsAt(meeting(_,_),T).\ncomplexEvent(moving,T) :- holdsAt(moving(_,_),T).\n#show complexEvent/2."
+		
+		'''
+		Append everything to the end of the initial asp program mentioned at line 33
+		'''
+
 		infer_program=asp_program+"\n"+atoms+"\n"+results+"\n"+inference_filter
+
+		'''
+		Run clingo and get inference results on complex events
+		'''
 
 		answers = ASP(infer_program)
 		output=[]
 		output_dict={}
 
-
+		'''
+		Parse the output of clingo and get the results using the label encoder
+		'''
 		for answer in answers.by_predicate:
 			ans_lst=str(answer['complexEvent']).replace("frozenset(","")[:-1].replace("{","[").replace("}","]").replace("(","[").replace(")","]")
 
@@ -184,6 +230,11 @@ def infer_on_complex(model,data_to_infer,complex_label_encoder):
 
 
 	total_acc = round(total_acc/len(data_to_infer),2)
+
+
+	'''
+	Return a list of the encoded results and the targets
+	'''
 
 	return [total_acc,all_preds,all_targets]
 	
@@ -233,84 +284,3 @@ def infer_on_simple(nn_model,dataList):
 	    all_preds,
 	    all_ground
 	]
-
-
-def acc_on_simple(nn_model,dataList):
-
-	all_preds=[]
-	all_targets=[]
-
-	micro_f1=None
-	m_f1_score = 0 
-	acc_on_simple=0
-
-	with torch.no_grad():
-		nn_model.eval()
-
-
-
-	for dataIdx, sample in enumerate(dataList):
-
-		input_tensor=sample["tensor"]
-		labelTensor=sample["labels"]
-
-		out,(_,_)=nn_model(input_tensor)
-
-		out=F.softmax(out.view(-1,NUM_OF_CLASSES), dim=1)
-		
-		_, y_pred_tags = torch.max(out, dim = 1)
-		# all_preds.append(y_pred_tags)
-
-		for yp in y_pred_tags.tolist():
-			all_preds.append(yp)
-
-
-
-
-		# mf1s=mircro_f1(torch.tensor(y_pred_tags.tolist()),torch.tensor(torch.flatten(labelTensor).tolist()))
-		# all_preds.append(x for x in y_pred_tags.tolist())
-
-		y_ground=torch.flatten(labelTensor).tolist()
-		# all_targets.append(y_ground)
-		for yg in y_ground:
-			all_targets.append(yg)
-
-		# print(all_preds)
-		# input()
-		# all_targets.append(x for x in y_ground)
-
-
-		out=torch.log(out)
-		s_acc= accuracy(out, labelTensor.view(-1))
-		acc_on_simple+=s_acc.item()
-		# m_f1_score+=mf1s.item()
-
-
-	# mircro_f1=None
-	# if(2 in all_targets):
-	# print(len(all_targets),len(all_preds))
-	# 
-	# else:
-	# micro_f1 = F1(num_classes=3)	
-
-	if(2 in y_ground):
-		micro_f1 = F1(num_classes=4,average='macro')
-	else:
-		for i in range(len(all_targets)):
-			if(all_targets[i]==3):
-				all_targets[i]=2
-
-			if(all_preds[i]==3):
-				all_preds[i]=2
-
-		micro_f1 = F1(num_classes=3,average='macro')	
-
-
-	m_f1_score=micro_f1(torch.tensor(all_preds),torch.tensor(all_targets))	
-	acc_on_simple=round(acc_on_simple/len(dataList),2)
-	# m_f1_score=round(m_f1_score/len(dataList),2)
-
-	return acc_on_simple , round(m_f1_score.item(),2)
-	
-
-
