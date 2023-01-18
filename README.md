@@ -22,9 +22,10 @@ To start training we need to generate suitable data:
 * ***nagivate to prepare data folder:*** cd prepare_data
 * ***parse the xml files in xml_caviar folder***: python parse_data.py (a sample_dict.pkl will be generated in the same folder)
 * ***create asp files ,asp models and tensors***: python generate_asp_on_ws.py (asp files will be generated in asp_on_ws folder)
+   * in line 14 of generate_asp_on_ws.py the script searches for the clingo path. If this isn't working replace the clingo_path with your own
 * ***perform a three-fold data split***: python three-fold.py (a 3-fold_dict.pkl will be generated in the data folder (in root folder of the project))
 ### TRAIN AND TEST EXPERIMENT SETUPS
 Every setup folder has the same structure:
-* ***nagavigate to each setup folder***: cd setup1 | cd setup2 | cd setup3
+* ***navigate to each setup folder***: cd setup1 | cd setup2 | cd setup3
 * ***train setup*** : python train_setup1.py | python train_setup2.py | python train_setup3.py
 * ***results of setup (after training)***: python results_setup1.py | python results_setup2.py | python results_setup3.py
