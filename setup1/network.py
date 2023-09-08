@@ -32,4 +32,11 @@ class Lstm(nn.Module):
     def init_hidden(self, x):
         h0 = torch.zeros(self.n_layers*2, x.size(0), self.n_hidden)
         c0 = torch.zeros(self.n_layers*2, x.size(0), self.n_hidden)
-        return [t.cuda() for t in (h0, c0)]
+    
+        # Determine the device
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+        # Move tensors to the determined device
+        h0, c0 = h0.to(device), c0.to(device)
+    
+        return h0, c0

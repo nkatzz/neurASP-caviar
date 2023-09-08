@@ -400,7 +400,10 @@ class NeurASP(object):
                     gradientsBP[t][i*self.n[m]+j] = (alpha - 1) * gradientsNN[ruleIdx][probIdx]
 
             for t in outputs_mapping:
-                outputBP[t].backward(torch.cuda.FloatTensor(np.reshape(np.array(gradientsBP[t]),outputBP[t].shape)), retain_graph=True)
+                # outputBP[t].backward(torch.cuda.FloatTensor(np.reshape(np.array(gradientsBP[t]),outputBP[t].shape)), retain_graph=True)
+
+                device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                outputBP[t].backward(torch.FloatTensor(np.reshape(np.array(gradientsBP[t]), outputBP[t].shape)).to(device), retain_graph=True)
 
 
             if (dataIdx+1) % batchSize == 0:

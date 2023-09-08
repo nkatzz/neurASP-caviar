@@ -1,11 +1,11 @@
 #script (python)
-from clingo import Number, Tuple
+from clingo import Number, Tuple_
 times = []
 def collect_all(a):
     times.append(a)
     return Number(1)
 def sort():
-    return [Tuple((Number(i), val)) for i, val in enumerate(sorted(times))]
+    return [Tuple_((Number(i), val)) for i, val in enumerate(sorted(times))]
 #end.
 
 % ASP code.

@@ -1,0 +1,85 @@
+
+holdsAt(F,Te) :- initiatedAt(F,Ts), fluent(F), next(Ts,Te).
+holdsAt(F,Te) :- holdsAt(F,Ts), not terminatedAt(F,Ts), fluent(F), next(Ts,Te).
+
+
+fluent(moving(X,Y)) :- person(X), person(Y), X != Y.
+fluent(meeting(X,Y)) :- person(X), person(Y), X != Y.
+
+
+#include "../next.lp".
+
+% Distance/orientation calculations:
+#include "../distances.lp".
+
+% Definitions of "type" predicates (extracted from the data):
+time(T) :- happensAt(disappear(_),T).
+time(T) :- happensAt(appear(_),T).
+time(T) :- happensAt(active(_),T).
+time(T) :- happensAt(inactive(_),T).
+time(T) :- happensAt(walking(_),T).
+time(T) :- happensAt(running(_),T).
+time(T) :- coords(_,_,_,T).
+time(T) :- orientation(_,_,T).
+
+
+person(X) :- happensAt(disappear(X),_).
+person(X) :- happensAt(appear(X),_).
+person(X) :- happensAt(active(X),_).
+person(X) :- happensAt(inactive(X),_).
+person(X) :- happensAt(walking(X),_).
+person(X) :- happensAt(running(X),_).
+person(X) :- coords(X,_,_,_).
+person(X) :- orientation(X,_,_).
+
+
+% Definition for the "moving" complex event: 
+initiatedAt(moving(X0,X1),X2) :- happensAt(walking(X0),X2),happensAt(walking(X1),X2),orientationMove(X0,X1,X2),close(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(walking(X0),X2),far(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(walking(X1),X2),far(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(active(X1),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(inactive(X1),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X1),X2),happensAt(inactive(X0),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(running(X0),X2), person(X1).
+terminatedAt(moving(X0,X1),X2) :- happensAt(running(X1),X2), person(X0).
+terminatedAt(moving(X0,X1),X2) :- happensAt(disappear(X0),X2), person(X1).
+terminatedAt(moving(X0,X1),X2) :- happensAt(disappear(X1),X2), person(X0).
+
+% Definition for the "meeting" complex event:
+initiatedAt(meeting(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(active(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(inactive(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(inactive(X0),X2),happensAt(active(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(inactive(X0),X2),happensAt(inactive(X1),X2),close(X0,X1,25,X2).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(running(X0),X2),person(X1).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(running(X1),X2),person(X0).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(disappear(X0),X2), person(X1).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(disappear(X1),X2), person(X0).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(walking(X0),X2),far(X0,X1,25,X2).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(walking(X1),X2),far(X0,X1,25,X2).
+
+	orientation(fra2gt_3,153,454). coords(fra2gt_3,42,163,454).  visible(fra2gt_3,454). happensAt(walking(fra2gt_3),454). orientation(fra2gt_4,150,454). coords(fra2gt_4,72,81,454).  visible(fra2gt_4,454). happensAt(running(fra2gt_4),454).
+orientation(fra2gt_3,153,455). coords(fra2gt_3,42,163,455).  visible(fra2gt_3,455). happensAt(walking(fra2gt_3),455). orientation(fra2gt_4,150,455). coords(fra2gt_4,72,81,455).  visible(fra2gt_4,455). happensAt(running(fra2gt_4),455).
+orientation(fra2gt_3,153,456). coords(fra2gt_3,41,163,456).  visible(fra2gt_3,456). happensAt(walking(fra2gt_3),456). orientation(fra2gt_4,150,456). coords(fra2gt_4,72,81,456).  visible(fra2gt_4,456). happensAt(running(fra2gt_4),456).
+orientation(fra2gt_3,153,457). coords(fra2gt_3,41,163,457).  visible(fra2gt_3,457). happensAt(walking(fra2gt_3),457). orientation(fra2gt_4,150,457). coords(fra2gt_4,71,80,457).  visible(fra2gt_4,457). happensAt(running(fra2gt_4),457).
+orientation(fra2gt_3,153,458). coords(fra2gt_3,41,163,458).  visible(fra2gt_3,458). happensAt(walking(fra2gt_3),458). orientation(fra2gt_4,150,458). coords(fra2gt_4,71,80,458).  visible(fra2gt_4,458). happensAt(running(fra2gt_4),458).
+orientation(fra2gt_3,153,459). coords(fra2gt_3,41,163,459).  visible(fra2gt_3,459). happensAt(walking(fra2gt_3),459). orientation(fra2gt_4,150,459). coords(fra2gt_4,71,80,459).  visible(fra2gt_4,459). happensAt(running(fra2gt_4),459).
+orientation(fra2gt_3,153,460). coords(fra2gt_3,41,163,460).  visible(fra2gt_3,460). happensAt(walking(fra2gt_3),460). orientation(fra2gt_4,150,460). coords(fra2gt_4,70,80,460).  visible(fra2gt_4,460). happensAt(running(fra2gt_4),460).
+orientation(fra2gt_3,153,461). coords(fra2gt_3,40,162,461).  visible(fra2gt_3,461). happensAt(walking(fra2gt_3),461). orientation(fra2gt_4,150,461). coords(fra2gt_4,70,80,461).  visible(fra2gt_4,461). happensAt(running(fra2gt_4),461).
+orientation(fra2gt_3,153,462). coords(fra2gt_3,40,162,462).  visible(fra2gt_3,462). happensAt(walking(fra2gt_3),462). orientation(fra2gt_4,150,462). coords(fra2gt_4,69,81,462).  visible(fra2gt_4,462). happensAt(walking(fra2gt_4),462).
+orientation(fra2gt_3,153,463). coords(fra2gt_3,39,162,463).  visible(fra2gt_3,463). happensAt(walking(fra2gt_3),463). orientation(fra2gt_4,150,463). coords(fra2gt_4,69,81,463).  visible(fra2gt_4,463). happensAt(walking(fra2gt_4),463).
+orientation(fra2gt_3,153,464). coords(fra2gt_3,39,161,464).  visible(fra2gt_3,464). happensAt(walking(fra2gt_3),464). orientation(fra2gt_4,150,464). coords(fra2gt_4,69,81,464).  visible(fra2gt_4,464). happensAt(walking(fra2gt_4),464).
+orientation(fra2gt_3,153,465). coords(fra2gt_3,39,161,465).  visible(fra2gt_3,465). happensAt(walking(fra2gt_3),465). orientation(fra2gt_4,150,465). coords(fra2gt_4,69,81,465).  visible(fra2gt_4,465). happensAt(walking(fra2gt_4),465).
+orientation(fra2gt_3,153,466). coords(fra2gt_3,38,161,466).  visible(fra2gt_3,466). happensAt(walking(fra2gt_3),466). orientation(fra2gt_4,150,466). coords(fra2gt_4,68,81,466).  visible(fra2gt_4,466). happensAt(walking(fra2gt_4),466).
+orientation(fra2gt_3,153,467). coords(fra2gt_3,38,160,467).  visible(fra2gt_3,467). happensAt(walking(fra2gt_3),467). orientation(fra2gt_4,150,467). coords(fra2gt_4,68,81,467).  visible(fra2gt_4,467). happensAt(walking(fra2gt_4),467).
+orientation(fra2gt_3,150,468). coords(fra2gt_3,38,160,468).  visible(fra2gt_3,468). happensAt(walking(fra2gt_3),468). orientation(fra2gt_4,150,468). coords(fra2gt_4,66,81,468).  visible(fra2gt_4,468). happensAt(walking(fra2gt_4),468).
+orientation(fra2gt_3,150,469). coords(fra2gt_3,38,160,469).  visible(fra2gt_3,469). happensAt(walking(fra2gt_3),469). orientation(fra2gt_4,150,469). coords(fra2gt_4,66,81,469).  visible(fra2gt_4,469). happensAt(walking(fra2gt_4),469).
+orientation(fra2gt_3,150,470). coords(fra2gt_3,38,159,470).  visible(fra2gt_3,470). happensAt(walking(fra2gt_3),470). orientation(fra2gt_4,150,470). coords(fra2gt_4,66,82,470).  visible(fra2gt_4,470). happensAt(walking(fra2gt_4),470).
+orientation(fra2gt_3,150,471). coords(fra2gt_3,38,158,471).  visible(fra2gt_3,471). happensAt(walking(fra2gt_3),471). orientation(fra2gt_4,150,471). coords(fra2gt_4,66,81,471).  visible(fra2gt_4,471). happensAt(walking(fra2gt_4),471).
+orientation(fra2gt_3,150,472). coords(fra2gt_3,38,157,472).  visible(fra2gt_3,472). happensAt(walking(fra2gt_3),472). orientation(fra2gt_4,150,472). coords(fra2gt_4,66,81,472).  visible(fra2gt_4,472). happensAt(walking(fra2gt_4),472).
+orientation(fra2gt_3,150,473). coords(fra2gt_3,38,156,473).  visible(fra2gt_3,473). happensAt(walking(fra2gt_3),473). orientation(fra2gt_4,150,473). coords(fra2gt_4,65,81,473).  visible(fra2gt_4,473). happensAt(walking(fra2gt_4),473).
+orientation(fra2gt_3,150,474). coords(fra2gt_3,38,155,474).  visible(fra2gt_3,474). happensAt(walking(fra2gt_3),474). orientation(fra2gt_4,150,474). coords(fra2gt_4,65,81,474).  visible(fra2gt_4,474). happensAt(walking(fra2gt_4),474).
+orientation(fra2gt_3,150,475). coords(fra2gt_3,38,155,475).  visible(fra2gt_3,475). happensAt(walking(fra2gt_3),475). orientation(fra2gt_4,150,475). coords(fra2gt_4,65,81,475).  visible(fra2gt_4,475). happensAt(walking(fra2gt_4),475).
+orientation(fra2gt_3,150,476). coords(fra2gt_3,38,155,476).  visible(fra2gt_3,476). happensAt(walking(fra2gt_3),476). orientation(fra2gt_4,150,476). coords(fra2gt_4,64,81,476).  visible(fra2gt_4,476). happensAt(walking(fra2gt_4),476).
+orientation(fra2gt_3,150,477). coords(fra2gt_3,38,154,477).  visible(fra2gt_3,477). happensAt(walking(fra2gt_3),477). orientation(fra2gt_4,150,477). coords(fra2gt_4,64,81,477).  visible(fra2gt_4,477). happensAt(walking(fra2gt_4),477).
+orientation(fra2gt_3,150,478). coords(fra2gt_3,38,154,478).  visible(fra2gt_3,478). happensAt(walking(fra2gt_3),478). orientation(fra2gt_4,150,478). coords(fra2gt_4,64,81,478).  visible(fra2gt_4,478). happensAt(walking(fra2gt_4),478).
+#show holdsAt/2.

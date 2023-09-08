@@ -19,7 +19,7 @@ Use gpu if present
 '''
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 '''
-The number of simple event classes is 4 [activew,inactive,walking,running]
+The number of simple event classes is 4 [active,inactive,walking,running]
 '''
 NUM_OF_CLASSES=4
 

@@ -1,0 +1,85 @@
+
+holdsAt(F,Te) :- initiatedAt(F,Ts), fluent(F), next(Ts,Te).
+holdsAt(F,Te) :- holdsAt(F,Ts), not terminatedAt(F,Ts), fluent(F), next(Ts,Te).
+
+
+fluent(moving(X,Y)) :- person(X), person(Y), X != Y.
+fluent(meeting(X,Y)) :- person(X), person(Y), X != Y.
+
+
+#include "../next.lp".
+
+% Distance/orientation calculations:
+#include "../distances.lp".
+
+% Definitions of "type" predicates (extracted from the data):
+time(T) :- happensAt(disappear(_),T).
+time(T) :- happensAt(appear(_),T).
+time(T) :- happensAt(active(_),T).
+time(T) :- happensAt(inactive(_),T).
+time(T) :- happensAt(walking(_),T).
+time(T) :- happensAt(running(_),T).
+time(T) :- coords(_,_,_,T).
+time(T) :- orientation(_,_,T).
+
+
+person(X) :- happensAt(disappear(X),_).
+person(X) :- happensAt(appear(X),_).
+person(X) :- happensAt(active(X),_).
+person(X) :- happensAt(inactive(X),_).
+person(X) :- happensAt(walking(X),_).
+person(X) :- happensAt(running(X),_).
+person(X) :- coords(X,_,_,_).
+person(X) :- orientation(X,_,_).
+
+
+% Definition for the "moving" complex event: 
+initiatedAt(moving(X0,X1),X2) :- happensAt(walking(X0),X2),happensAt(walking(X1),X2),orientationMove(X0,X1,X2),close(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(walking(X0),X2),far(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(walking(X1),X2),far(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(active(X1),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(inactive(X1),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X1),X2),happensAt(inactive(X0),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(running(X0),X2), person(X1).
+terminatedAt(moving(X0,X1),X2) :- happensAt(running(X1),X2), person(X0).
+terminatedAt(moving(X0,X1),X2) :- happensAt(disappear(X0),X2), person(X1).
+terminatedAt(moving(X0,X1),X2) :- happensAt(disappear(X1),X2), person(X0).
+
+% Definition for the "meeting" complex event:
+initiatedAt(meeting(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(active(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(inactive(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(inactive(X0),X2),happensAt(active(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(inactive(X0),X2),happensAt(inactive(X1),X2),close(X0,X1,25,X2).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(running(X0),X2),person(X1).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(running(X1),X2),person(X0).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(disappear(X0),X2), person(X1).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(disappear(X1),X2), person(X0).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(walking(X0),X2),far(X0,X1,25,X2).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(walking(X1),X2),far(X0,X1,25,X2).
+
+	orientation(wk2gt_2,141,355). coords(wk2gt_2,98,63,355).  visible(wk2gt_2,355). happensAt(inactive(wk2gt_2),355). orientation(wk2gt_4,148,355). coords(wk2gt_4,190,159,355).  visible(wk2gt_4,355). happensAt(walking(wk2gt_4),355).
+orientation(wk2gt_2,141,356). coords(wk2gt_2,98,63,356).  visible(wk2gt_2,356). happensAt(inactive(wk2gt_2),356). orientation(wk2gt_4,148,356). coords(wk2gt_4,187,156,356).  visible(wk2gt_4,356). happensAt(walking(wk2gt_4),356).
+orientation(wk2gt_2,141,357). coords(wk2gt_2,98,63,357).  visible(wk2gt_2,357). happensAt(inactive(wk2gt_2),357). orientation(wk2gt_4,148,357). coords(wk2gt_4,186,154,357).  visible(wk2gt_4,357). happensAt(walking(wk2gt_4),357).
+orientation(wk2gt_2,141,358). coords(wk2gt_2,98,63,358).  visible(wk2gt_2,358). happensAt(inactive(wk2gt_2),358). orientation(wk2gt_4,148,358). coords(wk2gt_4,185,150,358).  visible(wk2gt_4,358). happensAt(walking(wk2gt_4),358).
+orientation(wk2gt_2,141,359). coords(wk2gt_2,98,63,359).  visible(wk2gt_2,359). happensAt(inactive(wk2gt_2),359). orientation(wk2gt_4,148,359). coords(wk2gt_4,185,150,359).  visible(wk2gt_4,359). happensAt(walking(wk2gt_4),359).
+orientation(wk2gt_2,141,360). coords(wk2gt_2,98,63,360).  visible(wk2gt_2,360). happensAt(inactive(wk2gt_2),360). orientation(wk2gt_4,151,360). coords(wk2gt_4,184,149,360).  visible(wk2gt_4,360). happensAt(walking(wk2gt_4),360).
+orientation(wk2gt_2,141,361). coords(wk2gt_2,98,63,361).  visible(wk2gt_2,361). happensAt(inactive(wk2gt_2),361). orientation(wk2gt_4,151,361). coords(wk2gt_4,183,149,361).  visible(wk2gt_4,361). happensAt(walking(wk2gt_4),361).
+orientation(wk2gt_2,141,362). coords(wk2gt_2,98,63,362).  visible(wk2gt_2,362). happensAt(inactive(wk2gt_2),362). orientation(wk2gt_4,151,362). coords(wk2gt_4,183,148,362).  visible(wk2gt_4,362). happensAt(walking(wk2gt_4),362).
+orientation(wk2gt_2,141,363). coords(wk2gt_2,98,63,363).  visible(wk2gt_2,363). happensAt(inactive(wk2gt_2),363). orientation(wk2gt_4,151,363). coords(wk2gt_4,182,148,363).  visible(wk2gt_4,363). happensAt(walking(wk2gt_4),363).
+orientation(wk2gt_2,141,364). coords(wk2gt_2,98,63,364).  visible(wk2gt_2,364). happensAt(inactive(wk2gt_2),364). orientation(wk2gt_4,151,364). coords(wk2gt_4,181,146,364).  visible(wk2gt_4,364). happensAt(walking(wk2gt_4),364).
+orientation(wk2gt_2,141,365). coords(wk2gt_2,98,63,365).  visible(wk2gt_2,365). happensAt(inactive(wk2gt_2),365). orientation(wk2gt_4,151,365). coords(wk2gt_4,179,144,365).  visible(wk2gt_4,365). happensAt(walking(wk2gt_4),365).
+orientation(wk2gt_2,141,366). coords(wk2gt_2,98,63,366).  visible(wk2gt_2,366). happensAt(inactive(wk2gt_2),366). orientation(wk2gt_4,151,366). coords(wk2gt_4,177,142,366).  visible(wk2gt_4,366). happensAt(walking(wk2gt_4),366).
+orientation(wk2gt_2,141,367). coords(wk2gt_2,98,63,367).  visible(wk2gt_2,367). happensAt(inactive(wk2gt_2),367). orientation(wk2gt_4,151,367). coords(wk2gt_4,174,140,367).  visible(wk2gt_4,367). happensAt(walking(wk2gt_4),367).
+orientation(wk2gt_2,141,368). coords(wk2gt_2,98,63,368).  visible(wk2gt_2,368). happensAt(inactive(wk2gt_2),368). orientation(wk2gt_4,151,368). coords(wk2gt_4,171,139,368).  visible(wk2gt_4,368). happensAt(walking(wk2gt_4),368).
+orientation(wk2gt_2,141,369). coords(wk2gt_2,98,63,369).  visible(wk2gt_2,369). happensAt(inactive(wk2gt_2),369). orientation(wk2gt_4,151,369). coords(wk2gt_4,169,137,369).  visible(wk2gt_4,369). happensAt(walking(wk2gt_4),369).
+orientation(wk2gt_2,141,370). coords(wk2gt_2,98,63,370).  visible(wk2gt_2,370). happensAt(inactive(wk2gt_2),370). orientation(wk2gt_4,151,370). coords(wk2gt_4,167,136,370).  visible(wk2gt_4,370). happensAt(walking(wk2gt_4),370).
+orientation(wk2gt_2,141,371). coords(wk2gt_2,98,63,371).  visible(wk2gt_2,371). happensAt(inactive(wk2gt_2),371). orientation(wk2gt_4,151,371). coords(wk2gt_4,167,135,371).  visible(wk2gt_4,371). happensAt(walking(wk2gt_4),371).
+orientation(wk2gt_2,141,372). coords(wk2gt_2,98,63,372).  visible(wk2gt_2,372). happensAt(inactive(wk2gt_2),372). orientation(wk2gt_4,151,372). coords(wk2gt_4,166,135,372).  visible(wk2gt_4,372). happensAt(walking(wk2gt_4),372).
+orientation(wk2gt_2,141,373). coords(wk2gt_2,98,63,373).  visible(wk2gt_2,373). happensAt(inactive(wk2gt_2),373). orientation(wk2gt_4,151,373). coords(wk2gt_4,166,134,373).  visible(wk2gt_4,373). happensAt(walking(wk2gt_4),373).
+orientation(wk2gt_2,141,374). coords(wk2gt_2,98,63,374).  visible(wk2gt_2,374). happensAt(inactive(wk2gt_2),374). orientation(wk2gt_4,151,374). coords(wk2gt_4,165,134,374).  visible(wk2gt_4,374). happensAt(walking(wk2gt_4),374).
+orientation(wk2gt_2,141,375). coords(wk2gt_2,98,63,375).  visible(wk2gt_2,375). happensAt(inactive(wk2gt_2),375). orientation(wk2gt_4,151,375). coords(wk2gt_4,164,133,375).  visible(wk2gt_4,375). happensAt(walking(wk2gt_4),375).
+orientation(wk2gt_2,141,376). coords(wk2gt_2,98,63,376).  visible(wk2gt_2,376). happensAt(inactive(wk2gt_2),376). orientation(wk2gt_4,151,376). coords(wk2gt_4,163,133,376).  visible(wk2gt_4,376). happensAt(walking(wk2gt_4),376).
+orientation(wk2gt_2,141,377). coords(wk2gt_2,98,63,377).  visible(wk2gt_2,377). happensAt(inactive(wk2gt_2),377). orientation(wk2gt_4,147,377). coords(wk2gt_4,161,131,377).  visible(wk2gt_4,377). happensAt(walking(wk2gt_4),377).
+orientation(wk2gt_2,141,378). coords(wk2gt_2,98,63,378).  visible(wk2gt_2,378). happensAt(inactive(wk2gt_2),378). orientation(wk2gt_4,147,378). coords(wk2gt_4,159,130,378).  visible(wk2gt_4,378). happensAt(walking(wk2gt_4),378).
+orientation(wk2gt_2,141,379). coords(wk2gt_2,98,63,379).  visible(wk2gt_2,379). happensAt(inactive(wk2gt_2),379). orientation(wk2gt_4,147,379). coords(wk2gt_4,156,128,379).  visible(wk2gt_4,379). happensAt(walking(wk2gt_4),379).
+#show holdsAt/2.

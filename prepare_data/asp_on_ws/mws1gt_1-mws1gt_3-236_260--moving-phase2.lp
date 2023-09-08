@@ -1,0 +1,123 @@
+
+
+holdsAt(F,Te) :- initiatedAt(F,Ts), fluent(F), next(Ts,Te).
+holdsAt(F,Te) :- holdsAt(F,Ts), not terminatedAt(F,Ts), fluent(F), next(Ts,Te).
+
+
+fluent(moving(X,Y)) :- person(X), person(Y), X != Y.
+fluent(meeting(X,Y)) :- person(X), person(Y), X != Y.
+
+
+#include "../next.lp".
+
+% Distance/orientation calculations:
+#include "../distances.lp".
+
+% Definitions of "type" predicates (extracted from the data):
+time(T) :- happensAt(disappear(_),T).
+time(T) :- happensAt(appear(_),T).
+time(T) :- happensAt(active(_),T).
+time(T) :- happensAt(inactive(_),T).
+time(T) :- happensAt(walking(_),T).
+time(T) :- happensAt(running(_),T).
+time(T) :- coords(_,_,_,T).
+time(T) :- orientation(_,_,T).
+
+
+% Definition for the "moving" complex event: 
+initiatedAt(moving(X0,X1),X2) :- happensAt(walking(X0),X2),happensAt(walking(X1),X2),orientationMove(X0,X1,X2),close(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(walking(X0),X2),far(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(walking(X1),X2),far(X0,X1,34,X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(active(X1),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(inactive(X1),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(active(X1),X2),happensAt(inactive(X0),X2).
+terminatedAt(moving(X0,X1),X2) :- happensAt(running(X0),X2), person(X1).
+terminatedAt(moving(X0,X1),X2) :- happensAt(running(X1),X2), person(X0).
+terminatedAt(moving(X0,X1),X2) :- happensAt(disappear(X0),X2), person(X1).
+terminatedAt(moving(X0,X1),X2) :- happensAt(disappear(X1),X2), person(X0).
+
+% Definition for the "meeting" complex event:
+initiatedAt(meeting(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(active(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(active(X0),X2),happensAt(inactive(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(inactive(X0),X2),happensAt(active(X1),X2),close(X0,X1,25,X2).
+initiatedAt(meeting(X0,X1),X2) :- happensAt(inactive(X0),X2),happensAt(inactive(X1),X2),close(X0,X1,25,X2).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(running(X0),X2),person(X1).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(running(X1),X2),person(X0).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(disappear(X0),X2), person(X1).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(disappear(X1),X2), person(X0).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(walking(X0),X2),far(X0,X1,34,X2).
+terminatedAt(meeting(X0,X1),X2) :- happensAt(walking(X1),X2),far(X0,X1,34,X2).
+
+
+happensAt(active(X),T) :- simpleEvent(T,X,active).
+happensAt(inactive(X),T) :- simpleEvent(T,X,inactive).
+happensAt(walking(X),T) :- simpleEvent(T,X,walking).
+happensAt(running(X),T) :- simpleEvent(T,X,running). 
+
+
+holdsByInertia(moving(X,Y),T+1) :- holdsAt(moving(X,Y),T+1), not initiatedAt(moving(X,Y),T).
+holdsByInertia(meeting(X,Y),T+1) :- holdsAt(meeting(X,Y),T+1), not initiatedAt(meeting(X,Y),T).
+
+:- holdsByInertia(moving(X,Y),T+1), simpleEvent(T,X,E1), simpleEvent(T+1,X,E2), E1 != E2. 
+:- holdsByInertia(meeting(X,Y),T+1), simpleEvent(T,X,E1), simpleEvent(T+1,X,E2), E1 != E2.
+
+	person(mws1gt_1;mws1gt_3).
+orientation(mws1gt_1,155,236). coords(mws1gt_1,117,125,236).  visible(mws1gt_1,236). orientation(mws1gt_3,157,236). coords(mws1gt_3,111,148,236).  visible(mws1gt_3,236).
+orientation(mws1gt_1,155,237). coords(mws1gt_1,117,124,237).  visible(mws1gt_1,237). orientation(mws1gt_3,157,237). coords(mws1gt_3,110,147,237).  visible(mws1gt_3,237).
+orientation(mws1gt_1,155,238). coords(mws1gt_1,116,123,238).  visible(mws1gt_1,238). orientation(mws1gt_3,157,238). coords(mws1gt_3,109,147,238).  visible(mws1gt_3,238).
+orientation(mws1gt_1,155,239). coords(mws1gt_1,116,123,239).  visible(mws1gt_1,239). orientation(mws1gt_3,157,239). coords(mws1gt_3,107,147,239).  visible(mws1gt_3,239).
+orientation(mws1gt_1,155,240). coords(mws1gt_1,116,123,240).  visible(mws1gt_1,240). orientation(mws1gt_3,157,240). coords(mws1gt_3,106,146,240).  visible(mws1gt_3,240).
+orientation(mws1gt_1,155,241). coords(mws1gt_1,116,123,241).  visible(mws1gt_1,241). orientation(mws1gt_3,157,241). coords(mws1gt_3,104,146,241).  visible(mws1gt_3,241).
+orientation(mws1gt_1,155,242). coords(mws1gt_1,115,122,242).  visible(mws1gt_1,242). orientation(mws1gt_3,157,242). coords(mws1gt_3,103,144,242).  visible(mws1gt_3,242).
+orientation(mws1gt_1,155,243). coords(mws1gt_1,114,122,243).  visible(mws1gt_1,243). orientation(mws1gt_3,157,243). coords(mws1gt_3,103,143,243).  visible(mws1gt_3,243).
+orientation(mws1gt_1,155,244). coords(mws1gt_1,113,122,244).  visible(mws1gt_1,244). orientation(mws1gt_3,157,244). coords(mws1gt_3,103,142,244).  visible(mws1gt_3,244).
+orientation(mws1gt_1,155,245). coords(mws1gt_1,112,122,245).  visible(mws1gt_1,245). orientation(mws1gt_3,157,245). coords(mws1gt_3,102,141,245).  visible(mws1gt_3,245).
+orientation(mws1gt_1,155,246). coords(mws1gt_1,110,122,246).  visible(mws1gt_1,246). orientation(mws1gt_3,157,246). coords(mws1gt_3,102,141,246).  visible(mws1gt_3,246).
+orientation(mws1gt_1,155,247). coords(mws1gt_1,109,121,247).  visible(mws1gt_1,247). orientation(mws1gt_3,157,247). coords(mws1gt_3,102,141,247).  visible(mws1gt_3,247).
+orientation(mws1gt_1,155,248). coords(mws1gt_1,109,121,248).  visible(mws1gt_1,248). orientation(mws1gt_3,157,248). coords(mws1gt_3,102,141,248).  visible(mws1gt_3,248).
+orientation(mws1gt_1,155,249). coords(mws1gt_1,108,121,249).  visible(mws1gt_1,249). orientation(mws1gt_3,157,249). coords(mws1gt_3,102,142,249).  visible(mws1gt_3,249).
+orientation(mws1gt_1,155,250). coords(mws1gt_1,106,120,250).  visible(mws1gt_1,250). orientation(mws1gt_3,157,250). coords(mws1gt_3,101,141,250).  visible(mws1gt_3,250).
+orientation(mws1gt_1,155,251). coords(mws1gt_1,106,120,251).  visible(mws1gt_1,251). orientation(mws1gt_3,157,251). coords(mws1gt_3,100,141,251).  visible(mws1gt_3,251).
+orientation(mws1gt_1,155,252). coords(mws1gt_1,106,120,252).  visible(mws1gt_1,252). orientation(mws1gt_3,157,252). coords(mws1gt_3,100,140,252).  visible(mws1gt_3,252).
+orientation(mws1gt_1,155,253). coords(mws1gt_1,106,120,253).  visible(mws1gt_1,253). orientation(mws1gt_3,157,253). coords(mws1gt_3,99,140,253).  visible(mws1gt_3,253).
+orientation(mws1gt_1,155,254). coords(mws1gt_1,106,119,254).  visible(mws1gt_1,254). orientation(mws1gt_3,157,254). coords(mws1gt_3,97,139,254).  visible(mws1gt_3,254).
+orientation(mws1gt_1,155,255). coords(mws1gt_1,106,119,255).  visible(mws1gt_1,255). orientation(mws1gt_3,157,255). coords(mws1gt_3,96,139,255).  visible(mws1gt_3,255).
+orientation(mws1gt_1,155,256). coords(mws1gt_1,106,119,256).  visible(mws1gt_1,256). orientation(mws1gt_3,157,256). coords(mws1gt_3,95,138,256).  visible(mws1gt_3,256).
+orientation(mws1gt_1,155,257). coords(mws1gt_1,105,118,257).  visible(mws1gt_1,257). orientation(mws1gt_3,157,257). coords(mws1gt_3,94,139,257).  visible(mws1gt_3,257).
+orientation(mws1gt_1,155,258). coords(mws1gt_1,104,117,258).  visible(mws1gt_1,258). orientation(mws1gt_3,157,258). coords(mws1gt_3,94,139,258).  visible(mws1gt_3,258).
+orientation(mws1gt_1,155,259). coords(mws1gt_1,103,116,259).  visible(mws1gt_1,259). orientation(mws1gt_3,157,259). coords(mws1gt_3,93,139,259).  visible(mws1gt_3,259).
+orientation(mws1gt_1,155,260). coords(mws1gt_1,102,115,260).  visible(mws1gt_1,260). orientation(mws1gt_3,157,260). coords(mws1gt_3,93,139,260).  visible(mws1gt_3,260).
+orientation(mws1gt_1,155,261). coords(mws1gt_1,102,115,261).  visible(mws1gt_1,261). orientation(mws1gt_3,157,261). coords(mws1gt_3,93,139,261).  visible(mws1gt_3,261).
+happensAt(disappear(mws1gt_1),260). happensAt(disappear(mws1gt_3),260).
+1{simpleEvent(T,mws1gt_1,active); simpleEvent(T,mws1gt_1,inactive); simpleEvent(T,mws1gt_1,walking); simpleEvent(T,mws1gt_1,running)}1 :- T=236..260.
+1{simpleEvent(T,mws1gt_3,active); simpleEvent(T,mws1gt_3,inactive); simpleEvent(T,mws1gt_3,walking); simpleEvent(T,mws1gt_3,running)}1 :- T=236..260.
+:- holdsAt(moving(mws1gt_1,mws1gt_3),236). :- holdsAt(moving(mws1gt_3,mws1gt_1),236).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),237). :- not holdsAt(moving(mws1gt_3,mws1gt_1),237).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),238). :- not holdsAt(moving(mws1gt_3,mws1gt_1),238).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),239). :- not holdsAt(moving(mws1gt_3,mws1gt_1),239).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),240). :- not holdsAt(moving(mws1gt_3,mws1gt_1),240).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),241). :- not holdsAt(moving(mws1gt_3,mws1gt_1),241).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),242). :- not holdsAt(moving(mws1gt_3,mws1gt_1),242).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),243). :- not holdsAt(moving(mws1gt_3,mws1gt_1),243).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),244). :- not holdsAt(moving(mws1gt_3,mws1gt_1),244).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),245). :- not holdsAt(moving(mws1gt_3,mws1gt_1),245).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),246). :- not holdsAt(moving(mws1gt_3,mws1gt_1),246).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),247). :- not holdsAt(moving(mws1gt_3,mws1gt_1),247).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),248). :- not holdsAt(moving(mws1gt_3,mws1gt_1),248).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),249). :- not holdsAt(moving(mws1gt_3,mws1gt_1),249).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),250). :- not holdsAt(moving(mws1gt_3,mws1gt_1),250).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),251). :- not holdsAt(moving(mws1gt_3,mws1gt_1),251).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),252). :- not holdsAt(moving(mws1gt_3,mws1gt_1),252).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),253). :- not holdsAt(moving(mws1gt_3,mws1gt_1),253).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),254). :- not holdsAt(moving(mws1gt_3,mws1gt_1),254).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),255). :- not holdsAt(moving(mws1gt_3,mws1gt_1),255).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),256). :- not holdsAt(moving(mws1gt_3,mws1gt_1),256).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),257). :- not holdsAt(moving(mws1gt_3,mws1gt_1),257).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),258). :- not holdsAt(moving(mws1gt_3,mws1gt_1),258).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),259). :- not holdsAt(moving(mws1gt_3,mws1gt_1),259).
+:- not holdsAt(moving(mws1gt_1,mws1gt_3),260). :- not holdsAt(moving(mws1gt_3,mws1gt_1),260).
+:- holdsAt(moving(mws1gt_1,mws1gt_3),261). :- holdsAt(moving(mws1gt_3,mws1gt_1),261).
+:- simpleEvent(T,P,inactive), T>236 , T<260.
+:- simpleEvent(T,P,running), T>236 , T<260.
+
+#show simpleEvent/3.

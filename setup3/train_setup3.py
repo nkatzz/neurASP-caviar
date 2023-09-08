@@ -111,7 +111,7 @@ stats={}
 Neural Network hyperparams
 '''
 batchSize=4
-epochs=1000
+epochs=10
 
 lr=0.0000015
 model_count=5
