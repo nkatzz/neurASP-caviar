@@ -11,3 +11,4 @@ setup2/neural_models/*.pt
 setup3/*.pkl
 setup3/__pycache__/
 setup3/neural_models/*.pt
+.idea
