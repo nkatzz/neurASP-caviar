@@ -1,9 +1,7 @@
 import sys
 sys.path.append('../')
 import torch
-from network import Lstm
 import torch.nn.functional as F
-from torchmetrics import F1
 
 
 

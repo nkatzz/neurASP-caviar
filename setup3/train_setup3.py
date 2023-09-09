@@ -2,10 +2,8 @@ import sys
 sys.path.append('../')
 import torch
 from network import Lstm
-import pickle5 as pickle
+import pickle as pickle
 import time
-import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report
 import setup3_utils
 from neurasp import NeurASP
@@ -111,7 +109,7 @@ stats={}
 Neural Network hyperparams
 '''
 batchSize=4
-epochs=10
+epochs = 1000
 
 lr=0.0000015
 model_count=5

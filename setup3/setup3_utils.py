@@ -1,18 +1,11 @@
 import sys
 sys.path.append('../')
 
-import torch
-from network import Lstm
-import pickle5 as pickle
-import time
 import torch.nn.functional as F
-import pandas as pd
-from sklearn.metrics import confusion_matrix, classification_report
 from clyngor import ASP, solve
 from operator import itemgetter
 import re
 import torch
-from torchmetrics import F1
 
 '''
 Use gpu if present

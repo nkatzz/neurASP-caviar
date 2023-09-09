@@ -1,12 +1,8 @@
 import sys
 sys.path.append('../')
 import torch
-from network import Lstm
-import pickle5 as pickle
-import time
+import pickle as pickle
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report
 import setup1_utils
 
