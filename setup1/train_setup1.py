@@ -101,6 +101,8 @@ for f in folds:
             batchSize
         )
 
+        print('Debug: train_5')
+
         print("-------------------------- Epoch {} / Fold {} ---------------------------------------".format(epoch+1,f))
         start_infer_time = time.time()
         all_preds,all_targets=setup1_utils.infer(model,testData)

@@ -81,6 +81,7 @@ def train(model,dataList_Train,optimizer,criterion,batchSize):
         out = F.softmax(out.view(-1,NUM_OF_CLASSES), dim=1)
         out=torch.log(out)
 
+        print('Debug: train_3')
 
         # s_acc= accuracy(out, labelTensor.view(-1))
         s_loss = criterion(out, labelTensor.view(-1))
@@ -92,40 +93,11 @@ def train(model,dataList_Train,optimizer,criterion,batchSize):
 
         s_loss.backward(retain_graph=True)
 
-
+        print('Debug: train_4')
 
         if (dataIdx+1) % batchSize == 0:
             optimizer.step()
             optimizer.zero_grad()
 
+        print('Debug: train_5')
 
-    # training_acc=round(training_acc/len(dataList_Train),2)
-    # training_loss=round(training_loss/len(dataList_Train),2)
-
-
-    # with torch.no_grad():
-    # 	model.eval()
-
-    # 	for dataIdx, data  in enumerate(dataList_Val):
-
-    # 		inputTensor = data["tensor"]
-    # 		labelTensor = data["labels"]
-
-    # 		out,(_,_)=model(inputTensor)
-    # 		out = F.softmax(out.view(-1,NUM_OF_CLASSES), dim=1)
-    # 		out=torch.log(out)
-
-    # 		s_acc= accuracy(out, labelTensor.long().view(-1))
-    # 		s_loss = criterion(out, labelTensor.long().view(-1))
-
-
-    # 		validation_acc+=s_acc.item()
-    # 		validation_loss+=s_loss.item()
-
-
-    # 	validation_acc=round(validation_acc/len(dataList_Val),2)
-    # 	validation_loss=round(validation_loss/len(dataList_Val),2)
-
-
-
-    # return [training_acc,training_loss,validation_acc,validation_loss]
