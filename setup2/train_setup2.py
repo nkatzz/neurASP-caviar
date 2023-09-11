@@ -9,6 +9,9 @@ from sklearn.metrics import confusion_matrix, classification_report
 import setup2_utils
 import random
 
+if not torch.cuda.is_available():
+    torch.set_num_threads(1)
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 with open('../data/3-fold_dict.pkl', 'rb') as handle:

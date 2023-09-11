@@ -9,6 +9,9 @@ import setup3_utils
 from neurasp import NeurASP
 import random
 
+if not torch.cuda.is_available():
+    torch.set_num_threads(1)
+
 '''
 Use gpu if present
 '''

@@ -7,7 +7,8 @@ from sklearn.metrics import confusion_matrix, classification_report
 import setup1_utils
 import torch
 
-
+if not torch.cuda.is_available():
+    torch.set_num_threads(1)
 
 NUM_OF_CLASSES=3
 ws=24
@@ -91,8 +92,6 @@ for f in folds:
 
     for epoch in range(epochs):
 
-        print('Starting')
-
         setup1_utils.train(
             model,
             trainData,
@@ -100,8 +99,6 @@ for f in folds:
             criterion,
             batchSize
         )
-
-        print('Debug: train_5')
 
         print("-------------------------- Epoch {} / Fold {} ---------------------------------------".format(epoch+1,f))
         start_infer_time = time.time()
